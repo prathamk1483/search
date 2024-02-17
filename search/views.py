@@ -1,11 +1,11 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from django.http import JsonResponse
 from .models import Mentors
 from .serializers import MentorSerializers
-import requests
 from django.db.models import Q
+import requests
 
 
 # Create your views here.
@@ -36,23 +36,25 @@ def use_api(request):
             serializer = MentorSerializers(data = data)
             if serializer.is_valid():
                 serializer.save()
-        return Response({"Message":"Details saved"})
+        return JsonResponse({"Message":"Details saved"})
     
     elif request.method == "GET":
         allobjs = Mentors.objects.all()
         serializer = MentorSerializers(allobjs,many=True)
-        return Response(serializer.data)
+        return JsonResponse(serializer.data)
 
 
 
 @api_view(["GET"])
 def search_api(request):
-    query = request.query_params.get("expertise", "")
-    print("API recieved this query.",query)
+    query = request.GET.get("expertise", "")
+    print("API received this query:", query)
+    
     if query.strip():
-        print(query.strip())
-        mentors = Mentors.objects.filter(Q(expertise__icontains=query) | Q(description__icontains=query))
+        mentors = Mentors.objects.filter(
+            Q(expertise__icontains=query) | Q(description__icontains=query)
+        )
         serializer = MentorSerializers(mentors, many=True)
-        return Response(serializer.data)
+        return JsonResponse(serializer.data, safe=False)
     else:
-        return Response({"message": "No query parameter provided"})
+        return JsonResponse({"message": "No query parameter provided"})
