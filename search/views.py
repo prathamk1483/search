@@ -20,7 +20,7 @@ def search(request):
         if query =="" or query==" ":
             return HttpResponse("Internal django server error")
         print("The query is :",query)
-        api_url = "http://127.0.0.1:8000/api/search_mentors/"
+        api_url = "https://hackmatrixteamblaze.vercel.app/api/search_mentors/"
         response = requests.get(api_url,params={'expertise': query})
         if response.status_code == 200:
             return HttpResponse(response.content)
